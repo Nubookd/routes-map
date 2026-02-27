@@ -200,6 +200,10 @@ a {
   color: $black;
 }
 
+html {
+  min-height: 100vh;
+}
+
 //
 // body {
 //   font-family: $ff-MA-regular;
