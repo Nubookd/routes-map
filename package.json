@@ -10,6 +10,8 @@
     "createComponent": "node src/scripts/createComponent.js"
   },
   "dependencies": {
+    "@geoapify/geocoder-autocomplete": "^3.0.1",
+    "@geoapify/react-geocoder-autocomplete": "^3.0.0",
     "next": "16.1.6",
     "ol": "^10.8.0",
     "react": "19.2.3",
@@ -17,11 +19,13 @@
     "react-openlayers": "^10.5.1"
   },
   "devDependencies": {
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "sass": "^1.97.3",
     "typescript": "^5"
   }
 }

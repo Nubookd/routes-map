@@ -2,10 +2,10 @@ import React, { FC } from "react";
 import styles from "./MapMarkers.module.scss";
 import { IRoutePoint } from "@/types";
 import { Marker } from "react-openlayers";
+import { useRoute } from "@/context/RouteContext";
 
 interface Props {
   children?: React.ReactNode;
-  destinations: IRoutePoint[];
 }
 
 const CustomMarker = (props: {
@@ -19,7 +19,8 @@ const CustomMarker = (props: {
 };
 const AVAILABLE_COLORS = ["red", "blue", "green", "orange", "pink"];
 
-const MapMarkers: FC<Props> = ({ children, destinations }) => {
+const MapMarkers: FC<Props> = () => {
+  const { destinations } = useRoute();
   return (
     <div>
       {destinations.map((dest: IRoutePoint) => (

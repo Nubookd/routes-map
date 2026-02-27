@@ -1,6 +1,8 @@
 export interface IRoutePoint {
   id: number;
-  name?: string;
+  address?: string;
   coords: [number, number];
   type?: "start" | "waypoint" | "finish";
+  distance?: number;
+  time?: number;
 }
