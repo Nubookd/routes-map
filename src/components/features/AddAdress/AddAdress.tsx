@@ -10,6 +10,7 @@ import "@geoapify/geocoder-autocomplete/styles/round-borders.css";
 import { type Feature } from "geojson";
 import styles from "./AddAdress.module.scss";
 import AdressList from "../AdressList";
+import Button from "@/components/ui/Button";
 
 interface AddressSearchProps {
   placeholder?: string;
@@ -54,15 +55,16 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
       place.properties?.formatted ||
       place.properties?.address_line1 ||
       "Выбранная точка";
-    console.log(place);
     setAddAdressData({ address, coords });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addRoute(addAdressData.address, addAdressData.coords as [number, number]);
-    setAddAdressData({ address: "", coords: [0, 0] });
-    setValue("");
+    if (addAdressData.address !== "") {
+      addRoute(addAdressData.address, addAdressData.coords as [number, number]);
+      setAddAdressData({ address: "", coords: [0, 0] });
+      setValue("");
+    }
   };
 
   return (
@@ -84,7 +86,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({
             />
           </GeoapifyContext>
         </div>
-        <button className={styles.addAdress__button}>Добавить</button>
+        <Button variant="primary">Добавить</Button>
       </form>
       <AdressList />
     </div>

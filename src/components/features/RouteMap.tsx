@@ -12,6 +12,7 @@ import { Feature } from "ol";
 import { Stroke, Style } from "ol/style";
 import AddressSearch from "./AddAdress";
 import { useRoute } from "@/context/RouteContext";
+import { colorMap } from "@/types/RouteColor";
 
 interface Props {
   children?: React.ReactNode;
@@ -73,13 +74,13 @@ const RoutesMap: FC<Props> = () => {
   const addRoute = async (address: string, coords: [number, number]) => {
     try {
       const routeData = await fetchRouteFromGeoapify(startPoint, coords);
-      console.log(routeData);
       addDestination({
         id: destinations.length + 1,
         coords: coords,
         address: address,
         distance: routeData.features[0].properties.distance,
-        // time: ,
+        time: routeData.features[0].properties.time,
+        color: colorMap[destinations.length + 1],
       });
     } catch (error) {
       console.error("Error fetching route:", error);
@@ -95,7 +96,6 @@ const RoutesMap: FC<Props> = () => {
       try {
         const wayColors = ["red", "blue", "green", "orange", "pink"];
         const routes = await fetchAllRoutes();
-        console.log(routes);
         routes.forEach((routeData, index) => {
           if (!routeData) return;
 
@@ -132,7 +132,6 @@ const RoutesMap: FC<Props> = () => {
             vectorSource.addFeature(routeFeature);
           });
         });
-        console.log(destinations);
       } catch (error) {
         console.error("Error drawing routes:", error);
       }

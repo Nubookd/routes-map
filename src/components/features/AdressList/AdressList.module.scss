@@ -1,9 +1,24 @@
 @use "@/styles/variables.scss" as *;
 
 .adressList {
+  width: 60%;
   &__card {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    margin: 10px;
+    border: 5px solid $gray;
+    border-radius: 5px;
+    &--inner {
+      display: flex;
+      flex-direction: column;
+      padding: 0 10px 10px 10px;
+    }
+    &--header {
+      width: 100%;
+      min-height: 15px;
+    }
     &--title {
-      
     }
   }
 }
