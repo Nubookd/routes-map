@@ -16,12 +16,12 @@ const CustomMarker = (props: {
   char?: string;
   children?: React.ReactNode;
 }) => {
+  // @ts-expect-error
   return <Marker {...props} />;
 };
 
 const MapMarkers: FC<Props> = () => {
   const { destinations } = useRoute();
-  console.log(destinations.length)
   return (
     <div>
       {destinations.map((dest: IRoutePoint) => (

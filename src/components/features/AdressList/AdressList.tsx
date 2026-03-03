@@ -8,7 +8,6 @@ interface Props {
 
 const AdressList: FC<Props> = () => {
   const { destinations } = useRoute();
-  console.log(destinations);
   return (
     <div className={styles.adressList}>
       {destinations.map((dist) => (
