@@ -3,7 +3,7 @@ import styles from "./MapMarkers.module.scss";
 import { IRoutePoint } from "@/types";
 import { Marker } from "react-openlayers";
 import { useRoute } from "@/context/RouteContext";
-import { colorMap } from "@/types/RouteColor";
+import { colorsArray } from "@/types/RouteColor";
 
 interface Props {
   children?: React.ReactNode;
@@ -21,23 +21,19 @@ const CustomMarker = (props: {
 };
 
 const MapMarkers: FC<Props> = () => {
-  const { destinations } = useRoute();
+  const { destinations, startPoint } = useRoute();
+
   return (
     <div>
       {destinations.map((dest: IRoutePoint) => (
         <div key={dest.id}>
           <CustomMarker
             lonLat={dest.coords}
-            color={colorMap[destinations.length]}
+            color={colorsArray[(destinations.length - 1) % colorsArray.length]}
             char={dest.id.toString()}
           />
         </div>
       ))}
-      <CustomMarker
-        lonLat={[37.851031, 55.936505]}
-        color="green"
-        char={"base"}
-      />
     </div>
   );
 };

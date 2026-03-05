@@ -1,19 +1,26 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 import { Feature } from "geojson";
-import { IRoute, IRoutePoint } from "@/types";
+import { IRoutePoint } from "@/types";
 
 interface RouteContextType {
   // Состояния
-  startPoint: [number, number];
+  startPoint: IRoutePoint;
   destinations: IRoutePoint[];
   selectedRoute: Feature | null;
   isLoading: boolean;
   error: string | null;
 
   // Методы
-  setStartPoint: (point: [number, number]) => void;
+  setStartPoint: (point: IRoutePoint) => void;
+  setDestinations: (destinations: IRoutePoint[]) => void;
   addDestination: (point: IRoutePoint) => void;
   removeDestination: (id: number) => void;
   clearDestinations: () => void;
@@ -27,21 +34,25 @@ const RouteContext = createContext<RouteContextType | undefined>(undefined);
 export const RouteProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [startPoint, setStartPoint] = useState<[number, number]>([
-    37.851, 55.936,
-  ]);
+  const [startPoint, setStartPoint] = useState<IRoutePoint>({
+    id: 1,
+    coords: [37.851, 55.936],
+    color: "green",
+  });
   const [destinations, setDestinations] = useState<IRoutePoint[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<Feature | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addDestination = (point: IRoutePoint) => {
-    setDestinations((prev) => [
-      ...prev,
-      { ...point, id: destinations.length + 1 },
-    ]);
-  };
+  const addDestination = useCallback((point: IRoutePoint) => {
+    setDestinations((prev) => {
+      const newId =
+        prev.length > 0 ? Math.max(...prev.map((d) => d.id)) + 1 : 1;
+      const newDestinations = [...prev, { ...point, id: newId }];
 
+      return newDestinations;
+    });
+  }, []);
 
   const removeDestination = (id: number) => {
     setDestinations((prev) => prev.filter((dest) => dest.id !== id));
@@ -58,6 +69,7 @@ export const RouteProvider: React.FC<{ children: ReactNode }> = ({
     isLoading,
     error,
     setStartPoint,
+    setDestinations,
     addDestination,
     removeDestination,
     clearDestinations,

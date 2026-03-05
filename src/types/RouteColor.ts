@@ -7,3 +7,5 @@ export const colorMap: Record<number, RouteColor> = {
   4: "orange",
   5: "pink",
 };
+
+export const colorsArray = Object.values(colorMap);

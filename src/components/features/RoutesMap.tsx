@@ -7,12 +7,11 @@ import "ol/ol.css";
 import { fromLonLat } from "ol/proj";
 import MapMarkers from "./MapMarkers";
 import VectorSource from "ol/source/Vector";
-import { LineString } from "ol/geom";
-import { Feature } from "ol";
-import { Stroke, Style } from "ol/style";
-import AddressSearch from "./AddAdress";
 import { useRoute } from "@/context/RouteContext";
-import { colorMap } from "@/types/RouteColor";
+import AddressAction from "./AddressAction";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import { Style, Circle, Fill, Text, Stroke } from "ol/style";
 
 interface Props {
   children?: React.ReactNode;
@@ -20,125 +19,41 @@ interface Props {
 
 const RoutesMap: FC<Props> = () => {
   const [vectorSource] = useState(() => new VectorSource());
-  const { startPoint, destinations, addDestination } = useRoute();
-  const center = fromLonLat(startPoint);
-
-  const fetchRouteFromGeoapify = async (
-    start: [number, number],
-    end: [number, number],
-  ) => {
-    const formatCoords = (coords: [number, number]): string => {
-      return `${coords[1]},${coords[0]}`;
-    };
-
-    const startFormatted = formatCoords(start);
-    const endFormatted = formatCoords(end);
-
-    const url =
-      `https://api.geoapify.com/v1/routing?` +
-      `waypoints=${startFormatted}|${endFormatted}&` +
-      `mode=drive&` +
-      `apiKey=${process.env.NEXT_PUBLIC_API_KEY}`;
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Geoapify error:", errorText);
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    return data;
-  };
-
-  const fetchAllRoutes = async () => {
-    const promises = destinations.map(async (dest) => {
-      try {
-        const routeData = await fetchRouteFromGeoapify(startPoint, dest.coords);
-        return {
-          destination: dest,
-          route: routeData,
-        };
-      } catch (error) {
-        console.error("Error fetching route:", error);
-        return null;
-      }
-    });
-
-    const results = await Promise.all(promises);
-    return results.filter((r) => r !== null);
-  };
-
-  const addRoute = async (address: string, coords: [number, number]) => {
-    try {
-      const routeData = await fetchRouteFromGeoapify(startPoint, coords);
-      addDestination({
-        id: destinations.length + 1,
-        coords: coords,
-        address: address,
-        distance: routeData.features[0].properties.distance,
-        time: routeData.features[0].properties.time,
-        color: colorMap[destinations.length + 1],
-      });
-    } catch (error) {
-      console.error("Error fetching route:", error);
-    }
-  };
+  const { startPoint, destinations } = useRoute();
+  const center = fromLonLat(startPoint.coords);
 
   useEffect(() => {
-    const drawRoutes = async () => {
-      if (destinations.length === 0) return;
+    if (!startPoint?.coords) return;
 
+    vectorSource.clear();
+
+    const feature = new Feature({
+      geometry: new Point(fromLonLat(startPoint.coords)),
+      name: "start-point"
+    });
+
+    feature.setStyle(
+      new Style({
+        image: new Circle({
+          radius: 12,
+          fill: new Fill({ color: "green" }),
+          stroke: new Stroke({ color: "white", width: 2 })
+        }),
+        text: new Text({
+          text: "S",
+          fill: new Fill({ color: "white" }),
+          font: "bold 14px Arial",
+          offsetY: -1
+        })
+      })
+    );
+
+    vectorSource.addFeature(feature);
+
+    return () => {
       vectorSource.clear();
-
-      try {
-        const wayColors = ["red", "blue", "green", "orange", "pink"];
-        const routes = await fetchAllRoutes();
-        routes.forEach((routeData, index) => {
-          if (!routeData) return;
-
-          const routeGeometry = routeData.route.features[0].geometry;
-
-          let coordinates: number[][][] = [];
-
-          if (routeGeometry.type === "LineString") {
-            coordinates = [routeGeometry.coordinates as number[][]];
-          } else if (routeGeometry.type === "MultiLineString") {
-            coordinates = routeGeometry.coordinates as number[][][];
-          } else {
-            console.warn("Неизвестный тип геометрии:", routeGeometry.type);
-            return;
-          }
-
-          coordinates.forEach((lineCoords) => {
-            const transformedCoords = lineCoords.map((coord) =>
-              fromLonLat([coord[0], coord[1]]),
-            );
-
-            const line = new LineString(transformedCoords);
-            const routeFeature = new Feature({ geometry: line });
-
-            routeFeature.setStyle(
-              new Style({
-                stroke: new Stroke({
-                  color: wayColors[index % wayColors.length],
-                  width: 4,
-                }),
-              }),
-            );
-
-            vectorSource.addFeature(routeFeature);
-          });
-        });
-      } catch (error) {
-        console.error("Error drawing routes:", error);
-      }
     };
-
-    drawRoutes();
-  }, [destinations]);
+  }, [startPoint, destinations, vectorSource]);
 
   return (
     <div style={{ width: "100%", height: "500px" }}>
@@ -148,7 +63,7 @@ const RoutesMap: FC<Props> = () => {
         <MapMarkers />
         <VectorLayer source={vectorSource} />
       </Map>
-      <AddressSearch addRoute={addRoute} placeholder="Поиск адреса или места" />
+      <AddressAction vectorSource={vectorSource} />
     </div>
   );
 };
