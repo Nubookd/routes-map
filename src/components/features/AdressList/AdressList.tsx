@@ -39,7 +39,6 @@ const AdressList: FC<Props> = () => {
               <strong>Адрес: </strong>
               {dest.address}
             </span>
-            <span>{dest.distance}</span>
             <span className={styles["adressList__card--item"]}>
               <strong>Расстояние: </strong>
               {dest.distance && Math.floor(dest.distance / 1000)}.
