@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useCallback, useEffect, useRef } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import styles from "./AddressAction.module.scss";
 import AddStart from "../AddStart";
 import AdressList from "../AdressList";
@@ -12,6 +12,7 @@ import { Stroke, Style } from "ol/style";
 import { colorsArray } from "@/types/RouteColor";
 import VectorSource from "ol/source/Vector";
 import "ol/ol.css";
+import { GeoapifyRouteResponse, RouteWithDestination } from "@/types/IGeoapify";
 
 interface Props {
   children?: React.ReactNode;
@@ -49,12 +50,12 @@ const AddressAction: FC<Props> = ({ vectorSource }) => {
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
-    const data = await response.json();
+    const data: GeoapifyRouteResponse = await response.json();
 
     return data;
   };
 
-  const drawRoute = async (routeData, index: number) => {
+  const drawRoute = async (routeData: RouteWithDestination, index: number) => {
     try {
       if (!routeData) return;
 
@@ -66,7 +67,7 @@ const AddressAction: FC<Props> = ({ vectorSource }) => {
       } else if (routeGeometry.type === "MultiLineString") {
         coordinates = routeGeometry.coordinates as number[][][];
       } else {
-        console.warn("Неизвестный тип геометрии:", routeGeometry.type);
+        console.warn("Неизвестный тип геометрии");
         return;
       }
 
@@ -133,8 +134,6 @@ const AddressAction: FC<Props> = ({ vectorSource }) => {
   useEffect(() => {
     const redrawRoutes = async () => {
       if (destinations.length === 0) return;
-
-      console.log("🎨 Перерисовка маршрутов, destinations:", destinations);
       vectorSource.clear();
 
       for (const dest of destinations) {
