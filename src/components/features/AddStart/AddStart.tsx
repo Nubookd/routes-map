@@ -25,7 +25,7 @@ const AddStart: FC<Props> = () => {
   const handlePlaceSelect = (place: Feature | null) => {
     if (!place) return;
     let coords: [number, number];
-
+    console.log(place);
     if (place.geometry?.type === "Point") {
       coords = place.geometry.coordinates as [number, number];
     } else if (place.geometry?.type === "Polygon") {
@@ -44,7 +44,25 @@ const AddStart: FC<Props> = () => {
         number,
       ];
     } else {
-      return;
+      try {
+        const geometry = place.geometry;
+
+        if (geometry?.type === "LineString") {
+          coords = geometry.coordinates[0] as [number, number];
+        } else if (geometry?.type === "MultiPoint") {
+          coords = geometry.coordinates[0] as [number, number];
+        } else if (geometry?.type === "MultiLineString") {
+          coords = geometry.coordinates[0][0] as [number, number];
+        } else if (geometry?.type === "MultiPolygon") {
+          coords = geometry.coordinates[0][0][0] as [number, number];
+        } else {
+          console.warn("Неподдерживаемый тип геометрии:", geometry?.type);
+          return;
+        }
+      } catch (error) {
+        console.error("Ошибка при извлечении координат:", error);
+        return;
+      }
     }
     const address: string =
       place.properties?.formatted ||
